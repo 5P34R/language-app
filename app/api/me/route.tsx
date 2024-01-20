@@ -1,4 +1,5 @@
 import * as jose from 'jose';
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
 
@@ -15,8 +16,6 @@ export async function GET(request: Request) {
 
     catch(error){
         console.error('Error processing request:', error);
-        return new Response(JSON.stringify({ Message: "Internal Server Error" }), {
-            headers: { 'content-type': 'application/json' },
-        });
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }
 }

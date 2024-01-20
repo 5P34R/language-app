@@ -20,44 +20,39 @@ export async function POST(request: Request) {
     try {
         const req = await request.json();
 
-        if (!req.username || !req.password) {
+        console.log(req);
+
+        if (!req.username || !req.email || !req.password || !req.fullName || !req.isAdmin) {
             return NextResponse.json({ Message: "Missing Fields" }, { status: 400 });
         }
 
-        const { username, password } = req;
+        const { username, email, password, fullName, isAdmin } = req;
 
         await connectToDB();
 
-        const existingUser = await User.findOne({ username: username });
-        if (!existingUser) {
-            return NextResponse.json({ Message: "User not found" }, { status: 400 });
+        const existingUser = await User.findOne({ username: username, email: email });
+        if (existingUser) {
+            return NextResponse.json({ Message: "Username Already Taken" }, { status: 400 });
         }
 
-        const passwordMatch = await bcrypt.compare(password, existingUser.password);
-        if (!passwordMatch) {
-            return NextResponse.json({ Message: "Invalid Credentials" }, { status: 400 });
-        }
-
-        // const token = jwt.sign({ id: existingUser.id, username: existingUser.username, isAdmin: existingUser.isAdmin, isHospital: existingUser.isHospital }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        const token = await new jose.SignJWT({
-            id: existingUser.id,
-            username: existingUser.username,
-            isAdmin: existingUser.isAdmin,
-            isHospital: existingUser.isHospital,
-        })
-        .setProtectedHeader({ alg: 'HS256' })
-        .setIssuedAt()
-        .setExpirationTime('2h')
-        .sign(new TextEncoder().encode(process.env.JWT_SECRET!));
-
-        console.log(token);
-        return new NextResponse('successfully logged', {
-            status: 200,
-            headers: { 'Set-Cookie': `token=${token};path=/;` },
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await User.create({
+            username: username,
+            email: email,
+            password: hashedPassword,
+            fullname: fullName,
+            isAdmin: isAdmin,
         });
 
-    } catch (error) {
-        console.error('Error processing request:', error);
-        return NextResponse.json({ Message: "Internal Server Error" }, { status: 500 });
+        console.log(user);
+      
+
+    return new NextResponse('User Created Successfully', {
+        status: 200,
+    });
     }
+        catch (error) {
+            console.error('Error processing request:', error);
+            return NextResponse.json({ Message: "Internal Server Error" }, { status: 500 });
+} 
 }

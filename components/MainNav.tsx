@@ -31,6 +31,9 @@ export default function MainNav() {
                 console.log(data)
                 setUserProfile(data);
             }
+            else {
+                setUserProfile(null);
+            }
         }       
         )
     }
@@ -52,9 +55,19 @@ export default function MainNav() {
 
                 <Button className='bg-gray-200 rounded-full shadow-xl hover:bg-yellow-500 hover:text-gray-100 text-gray-600'>EN/DE</Button>
 
-                <Button className=" hover:text-yellow-400 rounded-full border-2 hover:border-yellow-300 px-10" onClick={() => router.push("/login")}>
-                    Login
-                </Button>
+
+                {
+                    userProfile !== null ? (
+                        <div className="flex items-center space-x-2">
+                            <span className="text-gray-300">{userProfile.username}</span>
+                        </div>
+                    ) : (
+                        <Button className=" hover:text-yellow-400 rounded-full border-2 hover:border-yellow-300 px-10" onClick={() => router.push("/login")}>
+                            Login
+                        </Button>
+                    )
+                }
+
             </div>
 
             {/* mobile menu */}

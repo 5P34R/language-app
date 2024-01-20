@@ -51,17 +51,55 @@ import {
 } from "@/components/ui/table"
 import { Icons } from "@/components/icons"
 import { Label } from "@/components/ui/label"
+import EditProfile from "@/components/EditProfile"
+import Link from "next/link"
  
 
+
+// table columns type
+
   export type Users = {
-    id: string
+    _id: string
     username: string
     fullname: string
     email: string,
     isAdmin: boolean,
   }
 
-  export const columns: ColumnDef<Users>[] = [
+export default function AdminDashboard() {
+
+
+  const [users, setUsers] = React.useState<Users[]>([])
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [editing, setEditing] = React.useState({
+    trigger: false,
+    user: {} as Users
+  })
+    const [sorting, setSorting] = React.useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+      []
+    )
+    const [columnVisibility, setColumnVisibility] =
+      React.useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = React.useState({})
+
+      // Fetching data from /api/admin/users
+      React.useEffect(() => {
+        fetch("/api/admin/users")
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data)
+            data = data
+            setUsers(data)
+            setIsLoading(false)
+          })
+      }, [])
+
+
+
+
+  // table columns config
+  const columns: ColumnDef<Users>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -85,10 +123,10 @@ import { Label } from "@/components/ui/label"
       enableHiding: false,
     },
     {
-      accessorKey: "id",
+      accessorKey: "_id",
       header: "id",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("id")}</div>
+        <div className="capitalize">{row.getValue("_id")}</div>
       ),
     },
     {
@@ -155,12 +193,16 @@ import { Label } from "@/components/ui/label"
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(user.id)}
+                onClick={() => navigator.clipboard.writeText(user._id)}
               >
                 Copy User ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Edit User</DropdownMenuItem>
+              <Link href={`/admin/dashboard/users/${user._id}`}>
+                <DropdownMenuItem>Edit User</DropdownMenuItem>
+              </Link>
+              
+              
               <DropdownMenuItem>Delete User</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -170,34 +212,9 @@ import { Label } from "@/components/ui/label"
   ]
 
 
-export default function AdminDashboard() {
-
-
-  const [users, setUsers] = React.useState<Users[]>([])
-  const [isLoading, setIsLoading] = React.useState(true)
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-      []
-    )
-    const [columnVisibility, setColumnVisibility] =
-      React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
-
-
-
-      // Fetching data from /api/admin/users
-      React.useEffect(() => {
-        fetch("/api/admin/users")
-          .then((res) => res.json())
-          .then((data) => {
-            console.log(data)
-            data = data
-            setUsers(data)
-            setIsLoading(false)
-          })
-      }, [])
 
    
+      // React Table
     const table = useReactTable({
       data : users,
       columns,
@@ -224,8 +241,7 @@ export default function AdminDashboard() {
       username: '',
       email: '',
       password: '',
-      isAdmin: false,
-      isHospital: false,
+      isAdmin: true,
     });
   
     const handleInputChange = (e: any) => {
@@ -235,6 +251,23 @@ export default function AdminDashboard() {
         [name]: type === 'checkbox' ? checked : value,
       }));
     };
+
+    
+
+    const handleCheckboxChange = (target: boolean) => {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        isAdmin: target,
+      }));
+    }
+
+    const handleEditProfileClose = () => {
+      setEditing({
+        trigger: false,
+        user: {} as Users,
+      });
+    };
+
   
     const handleSubmit = async () => {
       try {
@@ -261,7 +294,7 @@ export default function AdminDashboard() {
    
     return (
       
-      <div className="w-full">
+      <div className="w-full container mx-auto">
         <div className="flex items-center justify-between">
           <div className="text-2xl font-semibold">Users</div>
           <Dialog>
@@ -287,7 +320,7 @@ export default function AdminDashboard() {
               id="name"
               name="fullName"
               value={formData.fullName}
-              onChange={handleInputChange}
+              onChange={(e) => handleInputChange(e)}
               className="col-span-3"
             />
           </div>
@@ -336,20 +369,10 @@ export default function AdminDashboard() {
               id="isAdmin"
               name="isAdmin"
               checked={formData.isAdmin}
-              onChange={handleInputChange}
+              onCheckedChange={handleCheckboxChange}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="isHospital" className="text-right">
-              IsHospital
-            </Label>
-            <Checkbox
-              id="isHospital"
-              name="isHospital"
-              checked={formData.isHospital}
-              onChange={handleInputChange}
-            />
-          </div>
+
         </div>
             <DialogFooter>
               <Button type="submit" onClick={handleSubmit}>
@@ -359,6 +382,8 @@ export default function AdminDashboard() {
           </DialogContent>
           </Dialog>
         </div>
+
+
 
         <div className="flex items-center py-4">
           <Input

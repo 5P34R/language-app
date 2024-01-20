@@ -1,5 +1,6 @@
 import About from '@/components/About'
 import Services from '@/components/Events'
+import MainNav from '@/components/MainNav'
 import Link from 'next/link'
 
 
@@ -7,6 +8,7 @@ import Link from 'next/link'
 export default function Home() {
   return (
     <>
+    <MainNav />
       <section className="text-gray-600 body-font py-48 bg-[url('/home_university.jpg')] bg-no-repeat bg-center bg-cover h-screen">
         <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
           <div className="text-center lg:w-2/3 w-full">

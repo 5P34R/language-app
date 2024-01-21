@@ -11,24 +11,24 @@ export async function GET(request: NextApiRequest) {
 
     await connectToDB()
 
-    const university = await University.findOne({_id: id});
+    const university = await University.findOne({ _id: id });
 
-    return NextResponse.json({"message" : university}, { status: 200});
+    return NextResponse.json({ "message": university }, { status: 200 });
 }
 
 
 export async function POST(request: Request) {
     try {
- 
+
         const req = await request.json();
 
-        
+
 
         const { _id, name, description, link } = req;
 
         await connectToDB();
 
-        const existingUniversity = await University.findOne({ id: _id  });
+        const existingUniversity = await University.findOne({ id: _id });
         // console.log(existingUser);
         if (!existingUniversity) {
             return NextResponse.json({ Message: "User doesnt exist" }, { status: 400 });
@@ -37,16 +37,34 @@ export async function POST(request: Request) {
         existingUniversity.name = name;
         existingUniversity.description = description;
         existingUniversity.link = link;
-       
-        
+
+
         existingUniversity.save();
 
         console.log(existingUniversity);
-      
-    return NextResponse.json({"message" : "University Created edited"}, { status: 200});
+
+        return NextResponse.json({ "message": "University Created edited" }, { status: 200 });
     }
-        catch (error) {
-            console.error('Error processing request:', error);
-            return NextResponse.json({ Message: "Internal Server Error" }, { status: 500 });
-    }   
+    catch (error) {
+        console.error('Error processing request:', error);
+        return NextResponse.json({ Message: "Internal Server Error" }, { status: 500 });
+    }
+}
+
+
+export async function DELETE(request: Request) {
+    try {
+        const params = request.url;
+        const segments = params?.split('/');
+        const id = segments?.[segments.length - 1];
+
+        await connectToDB();
+
+        await University.findByIdAndDelete(id);
+
+        return NextResponse.json({ Message: "University Deleted" }, { status: 201 })
+    } catch (error) {
+        console.error('Error processing request:', error);
+        return NextResponse.json({ Message: "Internal Server Error" }, { status: 500 });
+    }
 }

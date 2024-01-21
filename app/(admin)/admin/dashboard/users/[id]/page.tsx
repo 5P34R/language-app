@@ -4,9 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 export default function UserEditPage({ params }: { params: { id: string }}) {
   const param = params.id;
+
+  const router= useRouter();
 
   const [user, setUser] = useState<{
     password: string;
@@ -54,6 +57,8 @@ export default function UserEditPage({ params }: { params: { id: string }}) {
             isAdmin: user?.isAdmin,
         }),
         }).then(res => res.json())
+
+        router.push('/admin/dashboard');
   };
 
   const handleInputChange = (field: string, value: string) => {

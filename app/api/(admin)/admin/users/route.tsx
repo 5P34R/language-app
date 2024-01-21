@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
         console.log(req);
 
-        if (!req.username || !req.email || !req.password || !req.fullName || !req.isAdmin) {
+        if (!req.username || !req.email || !req.password || !req.fullName ) {
             return NextResponse.json({ Message: "Missing Fields" }, { status: 400 });
         }
 
@@ -47,9 +47,7 @@ export async function POST(request: Request) {
         console.log(user);
       
 
-    return new NextResponse('User Created Successfully', {
-        status: 200,
-    });
+    return NextResponse.json(user);
     }
         catch (error) {
             console.error('Error processing request:', error);

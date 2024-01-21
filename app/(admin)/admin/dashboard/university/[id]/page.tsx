@@ -4,9 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 export default function UniversityEditPage({ params }: { params: { id: string }}) {
   const param = params.id;
+
+  const router = useRouter();
 
   const [university, setUniversity] = useState<{
     name: string;
@@ -44,6 +47,8 @@ export default function UniversityEditPage({ params }: { params: { id: string }}
           link: university?.link,
         }),
       });
+
+      router.push('/admin/dashboard/university');
     } catch (error) {
       console.error('Error saving university data:', error);
     }

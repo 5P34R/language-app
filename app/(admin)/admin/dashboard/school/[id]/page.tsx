@@ -4,9 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 export default function SchoolEditPage({ params }: { params: { id: string }}) {
   const param = params.id;
+
+  const router = useRouter();
 
   const [school, setSchool] = useState<{
     name: string;
@@ -44,6 +47,8 @@ export default function SchoolEditPage({ params }: { params: { id: string }}) {
           link: school?.link,
         }),
       });
+
+      router.push('/admin/dashboard/school');
     } catch (error) {
       console.error('Error saving school data:', error);
     }
